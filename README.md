@@ -1,6 +1,6 @@
 # Narwhal++ (narwhal-cpp)
 
-A high-performance C++20 port of the [**Narwhal and Tusk DAG-based mempool**](https://arxiv.org/abs/2105.11827) and consensus engine, featuring modular support for **Shoal++** and **Mysticeti**.
+A high-performance C++20 port of the [**Narwhal and Tusk DAG-based mempool**](https://arxiv.org/abs/2105.11827) and consensus engine, featuring modular support for [**Shoal++**](https://arxiv.org/abs/2405.20488) and **Mysticeti**.
 
 This project is designed as a modular, high-fidelity implementation of state-of-the-art consensus protocols, focusing on low latency and horizontal scalability.
 
