@@ -1,0 +1,26 @@
+# Build artifacts
+build/
+bin/
+lib/
+out/
+*.exe
+*.o
+*.obj
+*.lib
+*.pdb
+*.ilk
+
+# IDEs
+.vs/
+.vscode/
+*.sln
+*.vcxproj
+*.user
+
+# Databases
+db_primary*
+db_worker*
+
+# Temporary files
+*.tmp
+*.log
