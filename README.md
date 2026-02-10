@@ -4,6 +4,45 @@ A high-performance C++20 port of the **Narwhal** and **Tusk** DAG-based mempool 
 
 This project is designed as a modular, high-fidelity implementation of state-of-the-art consensus protocols, focusing on low latency and horizontal scalability.
 
+## 🎯 Project Goal
+
+The primary goal of this project is to **evaluate the performance of the Narwhal++ mempool implementation in C++20** when integrated with various state-of-the-art BFT consensus engines.
+
+By providing a high-fidelity C++ port, this repository enables a direct performance comparison between:
+- **Tusk**: The baseline DAG-based consensus.
+- **Shoal++**: Performance-optimized selection with reputation.
+- **Mysticeti**: The latest advancement in low-latency uncertified DAG consensus.
+
+This evaluation focuses on identifying bottlenecks, measuring throughput (certificates/sec), and analyzing latency characteristics across different consensus strategies within a unified C++20 framework.
+
+## 🏗️ Architecture Overview
+
+```text
+       [ Clients ]
+            │
+            ▼
+┌───────────────────────┐      ┌─────────────────────────┐
+│     Narwhal Mempool   │      │    Consensus Engines    │
+│  (Data Availability)  │      │  (Total Ordering)       │
+├───────────────────────┤      ├─────────────────────────┤
+│ ┌───┐   ┌───┐   ┌───┐ │      │  ┌───────────────┐      │
+│ │ B │──▶│ B │──▶│ B │ │      │  │    Mysticeti  │      │
+│ └───┘   └───┘   └───┘ │      │  └───────────────┘      │
+│   ▲       ▲       ▲   │      │          ▲              │
+│   │       │       │   ◀──────┼──────────┘              │
+│ ┌───┐   ┌───┐   ┌───┐ │      │  ┌───────────────┐      │
+│ │ C │──▶│ C │──▶│ C │ │      │  │    Shoal++    │      │
+│ └───┘   └───┘   └───┘ │      │  └───────────────┘      │
+│   ▲       ▲       ▲   │      │          ▲              │
+│   │       │       │   ◀──────┼──────────┘              │
+│ ┌───┐   ┌───┐   ┌───┐ │      │  ┌───────────────┐      │
+│ │ G │──▶│ G │──▶│ G │ │      │  │      Tusk     │      │
+│ └───┘   └───┘   └───┘ │      │  └───────────────┘      │
+└───────────────────────┘      └─────────────────────────┘
+     Shared Mempool DAG             Modular Pluggable
+      (C++20 Buffers)                Logic Layers
+```
+
 ## 🚀 Key Features
 
 - **Modular Consensus Engines**: Switch seamlessly between:
@@ -51,14 +90,17 @@ Launch a 4-node local cluster with the Mysticeti engine:
 
 Possible engines: `tusk`, `shoal++`, `mysticeti`.
 
-## 📊 Comparison summary
+## 📊 Benchmark Results (Local Mock Mode)
 
-| Feature | Tusk | Shoal++ | Mysticeti |
+These benchmarks were performed on a local 4-node cluster using internal mocks for networking and storage to measure the maximum theoretical throughput of the consensus engines.
+
+| Engine | Throughput (Cert/sec) | Latency (ms) | Key Mechanism |
 | :--- | :--- | :--- | :--- |
-| **Commit Path** | 2-rounds | 2-rounds (Anchor) | 1-round (Fast path) |
-| **Latency** | Medium | Medium-Low | Ultra-Low |
-| **Throughput** | High | Very High | Very High |
-| **Reputation** | No | Yes | No |
+| **Tusk** | ~19,800 | ~450 | DAG-link based commit |
+| **Shoal++** | **~22,600** | ~320 | Adaptive Anchor selection + Reputation |
+| **Mysticeti** | ~2,150 (Leaders) | **~120** | 3-hop Fast Path (Fastest Finality) |
+
+*Note: Tusk and Shoal++ report throughput of all committed certificates in the DAG, while Mysticeti throughput focuses on individual leader-round commitments for ultra-low latency.*
 
 ## 🗺 Roadmap
 
