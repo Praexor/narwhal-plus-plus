@@ -113,4 +113,4 @@ These benchmarks were performed on a local 4-node cluster using internal mocks f
 
 ## 📄 License
 
-MIT License.
+This project is licensed under the MIT License.
