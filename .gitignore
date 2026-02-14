@@ -20,7 +20,18 @@ out/
 # Databases
 db_primary*
 db_worker*
+db_bench*
+db_max*
 
 # Temporary files
 *.tmp
 *.log
+
+# TLA+ generated files
+formal/tla/states/
+formal/tla/*.out
+formal/tla/*.dot
+
+# Test outputs
+tests/output/
+*.test

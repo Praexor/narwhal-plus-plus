@@ -6,6 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Configuration options
 option(BUILD_TESTS "Build tests" ON)
+option(BUILD_PROPERTY_TESTS "Build property-based tests with RapidCheck" OFF)
 option(USE_MOCKS "Use internal mocks for RocksDB, Sodium, and SSL" ON)
 
 # Include directories
@@ -24,22 +25,30 @@ else()
     find_package(Threads REQUIRED)
 endif()
 
+# RapidCheck for property-based testing
+if(BUILD_PROPERTY_TESTS)
+    find_package(rapidcheck REQUIRED)
+endif()
+
 # Source files
 set(CRYPTO_SOURCES src/crypto.cpp)
 set(STORE_SOURCES src/store.cpp)
 set(NETWORK_SOURCES src/network.cpp)
+set(ASYNC_NETWORK_SOURCES src/async_network.cpp)
 set(CONSENSUS_SOURCES src/consensus.cpp)
 
 # Libraries (STATIC to avoid DLL export issues on Windows)
 add_library(narwhal_crypto STATIC ${CRYPTO_SOURCES})
 add_library(narwhal_store STATIC ${STORE_SOURCES})
 add_library(narwhal_network STATIC ${NETWORK_SOURCES})
+add_library(narwhal_async_network STATIC ${ASYNC_NETWORK_SOURCES})
 add_library(narwhal_consensus STATIC ${CONSENSUS_SOURCES})
 
 if(NOT USE_MOCKS)
     target_link_libraries(narwhal_crypto PUBLIC Sodium::Sodium)
     target_link_libraries(narwhal_store PUBLIC RocksDB::rocksdb)
     target_link_libraries(narwhal_network PUBLIC OpenSSL::SSL Boost::boost)
+    target_link_libraries(narwhal_async_network PUBLIC OpenSSL::SSL Boost::boost)
 endif()
 
 # Common links
@@ -52,6 +61,17 @@ target_link_libraries(primary_node PRIVATE narwhal_consensus)
 add_executable(worker_node src/worker.cpp)
 target_link_libraries(worker_node PRIVATE narwhal_consensus)
 
+# Tests
 if(BUILD_TESTS)
     enable_testing()
+    
+    if(BUILD_PROPERTY_TESTS)
+        add_executable(property_tests tests/property_tests.cpp)
+        target_link_libraries(property_tests PRIVATE 
+            narwhal_consensus 
+            rapidcheck
+        )
+        add_test(NAME PropertyTests COMMAND property_tests)
+        message(STATUS "Property-based tests enabled (RapidCheck)")
+    endif()
 endif()
