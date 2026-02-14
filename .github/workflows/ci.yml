@@ -1,0 +1,62 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  build-mock:
+    name: Build (Mock Mode)
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        build_type: [Release, Debug]
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup CMake
+      uses: lukka/get-cmake@latest
+    
+    - name: Configure CMake (Mock Mode)
+      run: cmake -B build -S . -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} -DUSE_MOCKS=ON
+    
+    - name: Build
+      run: cmake --build build --config ${{ matrix.build_type }}
+    
+    - name: Upload Artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: narwhal-${{ matrix.os }}-${{ matrix.build_type }}
+        path: |
+          build/Release/primary_node*
+          build/Release/worker_node*
+          build/Debug/primary_node*
+          build/Debug/worker_node*
+
+  lint:
+    name: Code Formatting Check
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Run clang-format
+      uses: jidicula/clang-format-action@v4.11.0
+      with:
+        clang-format-version: '14'
+        check-path: 'src'
+
+  documentation:
+    name: Documentation Check
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Check for broken links in README
+      uses: gaurav-nelson/github-action-markdown-link-check@v1
+      with:
+        use-quiet-mode: 'yes'
+        config-file: '.github/markdown-link-check-config.json'
