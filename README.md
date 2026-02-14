@@ -102,12 +102,59 @@ These benchmarks were performed on a local 4-node cluster using internal mocks f
 
 *Note: Tusk and Shoal++ report throughput of all committed certificates in the DAG, while Mysticeti throughput focuses on individual leader-round commitments for ultra-low latency.*
 
+## ⚠️ Current State & Verification
+
+### Implementation Status
+
+**Currently Implemented (Real):**
+- ✅ Core DAG consensus logic for all three engines
+- ✅ Certificate creation, validation, and ordering
+- ✅ Multi-threaded consensus execution
+- ✅ Modular engine architecture
+
+**Currently Mocked (For Testing):**
+- 🔶 Network layer (TLS 1.3 connections simulated)
+- 🔶 Cryptographic signatures (Ed25519 placeholder)
+- 🔶 Persistent storage (In-memory maps instead of RocksDB)
+
+> **Important**: This is a **research and evaluation platform**, not a production-ready system. The mocks enable rapid prototyping and benchmarking of consensus algorithms without the overhead of full network I/O.
+
+### Verification Strategy
+
+Given the critical nature of [BFT](https://en.wikipedia.org/wiki/Byzantine_fault) consensus correctness, we are planning a multi-layered verification approach:
+
+1. **Formal Verification** (Planned):
+   - TLA+ specifications for consensus invariants
+   - Property-based testing with RapidCheck (C++ equivalent to Rust's proptest)
+   - Model checking for liveness and safety properties
+
+2. **Byzantine Fault Simulation** (Phase 4):
+   - Adversarial node behavior injection
+   - Network partition and delay simulation
+   - Equivocation detection testing
+
+3. **Observability** (Phase 1):
+   - Prometheus/Grafana metrics integration
+   - OpenTelemetry distributed tracing
+   - Consensus state visualization
+
 ## 🗺 Roadmap
 
 - [x] Core DAG Logic & Tusk Implementation
 - [x] Shoal++ & Mysticeti engines
-- [ ] **Phase 1**: Infrastructure Professionalization (Asynchronous Multi-threaded Networking)
-- [ ] **Phase 2**: Advanced BFT Liveness (Pacemaker & Timeout Management)
+- [ ] **Phase 0**: Formal Verification Foundation
+  - [ ] TLA+ specifications for consensus safety/liveness
+  - [ ] Property-based testing suite (RapidCheck)
+  - [ ] Invariant checking in CI/CD
+- [ ] **Phase 1**: Infrastructure Professionalization
+  - [ ] Asynchronous Multi-threaded Networking (Boost.Asio)
+  - [ ] Real Ed25519 signatures with batch verification
+  - [ ] Prometheus metrics & Grafana dashboards
+  - [ ] OpenTelemetry distributed tracing
+- [ ] **Phase 2**: Advanced BFT Liveness
+  - [ ] Pacemaker & Timeout Management
+  - [ ] View-change protocol
+  - [ ] Hot-reloading configuration
 - [ ] **Phase 3**: Scalable Data Availability (Separate Worker-Layer)
 - [ ] **Phase 4**: Hardening (Byzantine Simulation & Fuzzing)
 
